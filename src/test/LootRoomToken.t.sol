@@ -40,9 +40,13 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
 
         uint256 initialLot = lootRoomToken.getForSale();
-        try lootRoomToken.safeBuy{value: value}(initialLot) { fail(); }
-        catch Error(string memory error) {
-            assertEq(error, "ERC721: transfer to non ERC721Receiver implementer");
+        try lootRoomToken.safeBuy{value: value}(initialLot) {
+            fail();
+        } catch Error(string memory error) {
+            assertEq(
+                error,
+                "ERC721: transfer to non ERC721Receiver implementer"
+            );
         }
     }
 
@@ -53,8 +57,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(initialLot);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.lootId(purchasedLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
 
@@ -68,8 +73,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 initialLot = lootRoomToken.getForSale();
         lootRoomToken.buy{value: value}(0);
 
-        try lootRoomToken.buy{value: value * 4}(initialLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.buy{value: value * 4}(initialLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, Errors.SOLD_OUT);
         }
     }
@@ -81,8 +87,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(0);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.lootId(purchasedLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
 
@@ -99,8 +106,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value * 4}(0);
         assertTrue(initialLot != purchasedLot);
 
-        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.lootId(purchasedLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
 
@@ -115,8 +123,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: 0}(0);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.lootId(purchasedLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
 
@@ -132,8 +141,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 initialLot = lootRoomToken.getForSale();
 
         // Try buying with insufficient funds.
-        try lootRoomToken.buy{value: value-1}(initialLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.buy{value: value - 1}(initialLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, Errors.INSUFFICIENT_VALUE);
         }
 
@@ -141,8 +151,9 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(initialLot);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.lootId(purchasedLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
 
@@ -160,7 +171,7 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
         uint256 tokenId = lootRoomToken.claim(myBag);
         assertTrue(initialLot != tokenId);
 
-        assertEq(lootRoomToken.getLootTokenId(tokenId), 1);
+        assertEq(lootRoomToken.lootId(tokenId), 1);
         assertEq(lootRoomToken.ownerOf(tokenId), address(this));
 
         uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
@@ -170,13 +181,14 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
 
     function testClaimOwn() public {
         uint256 tokenId = lootRoomToken.claim(myBag);
-        assertEq(lootRoomToken.getLootTokenId(tokenId), 1);
+        assertEq(lootRoomToken.lootId(tokenId), 1);
         assertEq(lootRoomToken.ownerOf(tokenId), address(this));
     }
 
     function testClaimOthers() public {
-        try lootRoomToken.claim(otherBag) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.claim(otherBag) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, Errors.NOT_OWNER);
         }
     }
@@ -184,8 +196,9 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
     function testClaimTwice() public {
         lootRoomToken.claim(myBag);
 
-        try lootRoomToken.claim(myBag) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.claim(myBag) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, Errors.ALREADY_CLAIMED);
         }
     }
@@ -213,8 +226,9 @@ contract LootRoomTokenBuyReentrant is LootRoomTokenTest, IERC721Receiver {
         uint256 value = lootRoomToken.getPrice();
 
         // Verify that rebuying the same token fails.
-        try lootRoomToken.buy{value: value}(initialLot) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.buy{value: value}(initialLot) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, Errors.SOLD_OUT);
         }
 
@@ -242,8 +256,9 @@ contract LootRoomTokenClaimReentrant is LootRoomTokenTest, IERC721Receiver {
         uint256,
         bytes calldata
     ) external override returns (bytes4) {
-        try lootRoomToken.claim(myBag) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.claim(myBag) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, Errors.ALREADY_CLAIMED);
             received = true;
         }
@@ -274,8 +289,9 @@ contract LootRoomTokenWithdraw is LootRoomTokenTest {
         lootRoomToken.buy{value: value}(0);
         assertEq(address(lootRoomToken).balance, value);
 
-        try lootRoomToken.withdraw(payable(this)) { fail(); }
-        catch Error(string memory error) {
+        try lootRoomToken.withdraw(payable(this)) {
+            fail();
+        } catch Error(string memory error) {
             assertEq(error, "Ownable: caller is not the owner");
         }
     }

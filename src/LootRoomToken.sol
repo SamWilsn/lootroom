@@ -125,9 +125,9 @@ contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
         uint256 num = uint256(keccak256(abi.encodePacked(tokenId))) & 0xFFFFFF;
 
         return string(abi.encodePacked(
-            getOpinion(tokenId),
+            roomOpinion(tokenId),
             " ",
-            getBiome(tokenId),
+            roomType(tokenId),
             " #",
             Strings.toString(num)
         ));
@@ -137,10 +137,10 @@ contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
         uint256 tokenId
     ) public pure returns (string memory) {
         uint256 c;
-        c  = bytes(getContainer(tokenId, 0)).length == 0 ? 0 : 1;
-        c += bytes(getContainer(tokenId, 1)).length == 0 ? 0 : 1;
-        c += bytes(getContainer(tokenId, 2)).length == 0 ? 0 : 1;
-        c += bytes(getContainer(tokenId, 3)).length == 0 ? 0 : 1;
+        c  = bytes(roomContainer(tokenId, 0)).length == 0 ? 0 : 1;
+        c += bytes(roomContainer(tokenId, 1)).length == 0 ? 0 : 1;
+        c += bytes(roomContainer(tokenId, 2)).length == 0 ? 0 : 1;
+        c += bytes(roomContainer(tokenId, 3)).length == 0 ? 0 : 1;
 
         string memory containers;
         if (0 == c) {
@@ -156,24 +156,24 @@ contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
         }
 
         bytes memory exits = abi.encodePacked(
-            getExitPassable(tokenId, 0) ? string(abi.encodePacked(" To the North, there is a ", getExitBiome(tokenId, 0), ".")) : "",
-            getExitPassable(tokenId, 1) ? string(abi.encodePacked(" To the East, there is a ", getExitBiome(tokenId, 1), ".")) : "",
-            getExitPassable(tokenId, 2) ? string(abi.encodePacked(" To the South, there is a ", getExitBiome(tokenId, 2), ".")) : "",
-            getExitPassable(tokenId, 3) ? string(abi.encodePacked(" To the West, there is a ", getExitBiome(tokenId, 3), ".")) : ""
+            exitPassable(tokenId, 0) ? string(abi.encodePacked(" To the North, there is a ", exitType(tokenId, 0), ".")) : "",
+            exitPassable(tokenId, 1) ? string(abi.encodePacked(" To the East, there is a ", exitType(tokenId, 1), ".")) : "",
+            exitPassable(tokenId, 2) ? string(abi.encodePacked(" To the South, there is a ", exitType(tokenId, 2), ".")) : "",
+            exitPassable(tokenId, 3) ? string(abi.encodePacked(" To the West, there is a ", exitType(tokenId, 3), ".")) : ""
         );
 
         return string(abi.encodePacked(
             _article(tokenId),
             " ",
-            getOpinion(tokenId),
+            roomOpinion(tokenId),
             " ",
-            getBiome(tokenId),
+            roomType(tokenId),
             " with a mostly ",
-            getMaterial(tokenId),
+            roomMaterial(tokenId),
             " construction. Compared to other rooms it is ",
-            getSize(tokenId),
+            roomSize(tokenId),
             ", and feels ",
-            getDescription(tokenId),
+            roomModifier(tokenId),
             ". ",
             containers,
             exits
@@ -186,18 +186,18 @@ contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
             "{\"description\":\"", tokenDescription(tokenId),"\",\"name\":\"",
             tokenName(tokenId),
             "\",\"attributes\":[{\"trait_type\":\"Opinion\",\"value\":\"",
-            getOpinion(tokenId),
+            roomOpinion(tokenId),
             "\"},{\"trait_type\":\"Size\",\"value\":\"",
-            getSize(tokenId)
+            roomSize(tokenId)
         );
 
         bytes memory json2 = abi.encodePacked(
             "\"},{\"trait_type\":\"Description\",\"value\":\"",
-            getDescription(tokenId),
+            roomModifier(tokenId),
             "\"},{\"trait_type\":\"Material\",\"value\":\"",
-            getMaterial(tokenId),
+            roomMaterial(tokenId),
             "\"},{\"trait_type\":\"Biome\",\"value\":\"",
-            getBiome(tokenId),
+            roomType(tokenId),
             "\"}],\"image\":\"data:image/svg+xml;base64,",
             Base64.encode(bytes(_image(tokenId))),
             "\"}"

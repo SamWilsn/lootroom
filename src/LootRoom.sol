@@ -15,7 +15,7 @@ abstract contract LootRoom {
     // Biome
     // Containers
 
-    function getBiomeName(uint8 val) private pure returns (string memory) {
+    function biomeName(uint8 val) private pure returns (string memory) {
         if (184 >= val) { return "Room"; }
         if (200 >= val) { return "Pit"; }
         if (216 >= val) { return "Lair"; }
@@ -25,12 +25,12 @@ abstract contract LootRoom {
         return "Treasury";
     }
 
-    function getBiome(uint256 tokenId) public pure returns (string memory) {
+    function roomType(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[0]);
-        return getBiomeName(val);
+        return biomeName(val);
     }
 
-    function getMaterial(uint256 tokenId) public pure returns (string memory) {
+    function roomMaterial(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[1]);
 
         if (128 >= val) { return "Stone"; }
@@ -42,7 +42,7 @@ abstract contract LootRoom {
         return "Marble";
     }
 
-    function getContainer(
+    function roomContainer(
         uint256 tokenId,
         uint256 idx
     ) public pure returns (string memory) {
@@ -64,7 +64,7 @@ abstract contract LootRoom {
         return "Strongbox";
     }
 
-    function getOpinion(uint256 tokenId) public pure returns (string memory) {
+    function roomOpinion(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[6]);
 
         if (229 >= val) { return "Unremarkable"; }
@@ -81,7 +81,7 @@ abstract contract LootRoom {
         return "Weird";
     }
 
-    function getSize(uint256 tokenId) public pure returns (string memory) {
+    function roomSize(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[7]);
 
         if (  0 == val) { return "Infinitesimal"; }
@@ -128,7 +128,7 @@ abstract contract LootRoom {
         return "Immeasurable";
     }
 
-    function getDescription(uint256 tokenId) public pure returns (string memory) {
+    function roomModifier(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[8]);
 
         if ( 15 >= val) { return "Sweltering"; }
@@ -149,17 +149,17 @@ abstract contract LootRoom {
         return "Exotic";
     }
 
-    function getExitBiome(
+    function exitType(
         uint256 tokenId,
         uint256 direction
     ) public pure returns (string memory) {
         require(4 > direction, LootRoomErrors.OUT_OF_RANGE);
         uint8 val = uint8(bytes32(tokenId)[9 + direction]);
         // 9, 10, 11, 12
-        return getBiomeName(val);
+        return biomeName(val);
     }
 
-    function getExitPassable(
+    function exitPassable(
         uint256 tokenId,
         uint256 direction
     ) public pure returns (bool) {
@@ -169,7 +169,7 @@ abstract contract LootRoom {
         return 128 > val;
     }
 
-    function getLootTokenId(uint256 tokenId) public pure returns (uint256) {
+    function lootId(uint256 tokenId) public pure returns (uint256) {
         uint256 lootTokenId = tokenId & 0xFFFF;
         require(0 < lootTokenId && 8001 > lootTokenId, LootRoomErrors.NO_LOOT);
         return lootTokenId;
@@ -178,9 +178,9 @@ abstract contract LootRoom {
     function _svgNorth(uint256 tokenId) private pure returns (string memory) {
         return string(abi.encodePacked(
             "<text x='250' y='65' font-size='20px'><tspan>",
-            getExitBiome(tokenId, 0),
+            exitType(tokenId, 0),
             "</tspan></text>",
-            (getExitPassable(tokenId, 0) ?
+            (exitPassable(tokenId, 0) ?
                 "<path d='m250 15 15 26h-30z'/>"
                     : "<rect x='75' y='75' width='350' height='15'/>")
 
@@ -190,9 +190,9 @@ abstract contract LootRoom {
     function _svgEast(uint256 tokenId) private pure returns (string memory) {
         return string(abi.encodePacked(
             "<text transform='rotate(90)' x='250' y='-435'><tspan>",
-            getExitBiome(tokenId, 1),
+            exitType(tokenId, 1),
             "</tspan></text>",
-            (getExitPassable(tokenId, 1) ?
+            (exitPassable(tokenId, 1) ?
                 "<path d='m483 248-26 15v-30z'/>"
                 : "<rect x='410' y='75' width='15' height='350'/>")
 
@@ -202,9 +202,9 @@ abstract contract LootRoom {
     function _svgSouth(uint256 tokenId) private pure returns (string memory) {
         return string(abi.encodePacked(
             "<text transform='scale(-1)' x='-250' y='-435'><tspan>",
-            getExitBiome(tokenId, 2),
+            exitType(tokenId, 2),
             "</tspan></text>",
-            (getExitPassable(tokenId, 2) ?
+            (exitPassable(tokenId, 2) ?
                 "<path d='m250 481 15-26h-30z'/>"
                 : "<rect x='75' y='410' width='350' height='15'/>")
         ));
@@ -213,9 +213,9 @@ abstract contract LootRoom {
     function _svgWest(uint256 tokenId) private pure returns (string memory) {
         return string(abi.encodePacked(
             "<text transform='rotate(-90)' x='-250' y='65'><tspan>",
-            getExitBiome(tokenId, 3),
+            exitType(tokenId, 3),
             "</tspan></text>",
-            (getExitPassable(tokenId, 3) ?
+            (exitPassable(tokenId, 3) ?
                 "<path d='m17 248 26 15v-30z'/>"
                 : "<rect x='75' y='75' width='15' height='350'/>")
         ));
@@ -226,11 +226,11 @@ abstract contract LootRoom {
             "<text x='125' y='130' text-align='left' text-anchor='start'><tspan>",
             _article(tokenId),
             "</tspan><tspan x='125' dy='25'>",
-            getOpinion(tokenId), "</tspan><tspan x='125' dy='25'>",
-            getSize(tokenId), "</tspan><tspan x='125' dy='25'>",
-            getDescription(tokenId), "</tspan><tspan x='125' dy='25'>",
-            getMaterial(tokenId), "</tspan><tspan x='125' dy='25'>",
-            getBiome(tokenId), ".</tspan><tspan x='125' dy='25'>&#160;</tspan>",
+            roomOpinion(tokenId), "</tspan><tspan x='125' dy='25'>",
+            roomSize(tokenId), "</tspan><tspan x='125' dy='25'>",
+            roomModifier(tokenId), "</tspan><tspan x='125' dy='25'>",
+            roomMaterial(tokenId), "</tspan><tspan x='125' dy='25'>",
+            roomType(tokenId), ".</tspan><tspan x='125' dy='25'>&#160;</tspan>",
             _svgContainer(tokenId, 0),
             _svgContainer(tokenId, 1)
 
@@ -242,7 +242,7 @@ abstract contract LootRoom {
         uint256 tokenId,
         uint256 idx
     ) private pure returns (string memory) {
-        string memory container = getContainer(tokenId, idx);
+        string memory container = roomContainer(tokenId, idx);
         if (bytes(container).length == 0) {
             return "";
         } else {
