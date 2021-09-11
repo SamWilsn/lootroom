@@ -3,12 +3,11 @@
 pragma solidity ^0.8.6;
 import "ds-test/test.sol";
 
-import "../../LootRoomRender.sol";
 import "../../LootRoomToken.sol";
 import "./Hevm.sol";
 
 contract TestLootRoomToken is LootRoomToken {
-    constructor(LootRoomRender render, IERC721 loot) LootRoomToken(render, loot) {
+    constructor(IERC721 loot) LootRoomToken(loot) {
     }
 }
 
@@ -28,7 +27,6 @@ contract LootRoomTokenTest is DSTest {
 
     // contracts
     MockLoot internal mockLoot;
-    LootRoomRender internal render;
     TestLootRoomToken internal lootRoomToken;
 
     // Loot bags
@@ -37,11 +35,10 @@ contract LootRoomTokenTest is DSTest {
 
     function setUp() public virtual {
         mockLoot = new MockLoot();
-        render = new LootRoomRender();
 
         myBag = mockLoot.mint(address(this), 0x1);
         otherBag = mockLoot.mint(address(hevm), 0x2);
 
-        lootRoomToken = new TestLootRoomToken(render, mockLoot);
+        lootRoomToken = new TestLootRoomToken(mockLoot);
     }
 }

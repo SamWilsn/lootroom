@@ -4,9 +4,9 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@base64-sol/base64.sol";
 import "./Random.sol";
 import "./LootRoom.sol";
-import "./LootRoomRender.sol";
 import "./Measurable.sol";
 
 library Errors {
@@ -18,12 +18,11 @@ library Errors {
     string constant internal NONEXISTENT = "nonexistent";
 }
 
-contract LootRoomToken is Random, ERC721 {
+contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
     uint256 constant public AUCTION_BLOCKS = 6650;
     uint256 constant public AUCTION_MINIMUM_START = 1 ether;
 
     IERC721 immutable private LOOT;
-    LootRoomRender immutable public RENDER;
 
     mapping (uint256 => bool) private s_ClaimedBags;
 
@@ -31,8 +30,7 @@ contract LootRoomToken is Random, ERC721 {
     uint256 private s_StartPrice;
     uint256 private s_Lot;
 
-    constructor(LootRoomRender render, IERC721 loot) ERC721("Loot Room", "ROOM") {
-        RENDER = render;
+    constructor(IERC721 loot) ERC721("Loot Room", "ROOM") {
         LOOT = loot;
         _startAuction(0);
     }
@@ -120,5 +118,37 @@ contract LootRoomToken is Random, ERC721 {
         uint256 tokenId = _claim(lootTokenId);
         _mint(msg.sender, tokenId);
         return tokenId;
+    }
+
+    function tokenURI(uint256 tokenId) public override pure returns (string memory) {
+        // TODO: Name
+        // TODO: Description
+        bytes memory json = abi.encodePacked(
+            "{\"description\":\"\",\"name\":\"",
+            "TODO",
+            "\",\"attributes\":[{\"trait_type\":\"Opinion\",\"value\":\"",
+            getOpinion(tokenId),
+            "\"},{\"trait_type\":\"Size\",\"value\":\"",
+            getSize(tokenId),
+            "\"},{\"trait_type\":\"Description\",\"value\":\"",
+            getDescription(tokenId),
+            "\"},{\"trait_type\":\"Material\",\"value\":\"",
+            getMaterial(tokenId),
+            "\"},{\"trait_type\":\"Biome\",\"value\":\"",
+            getBiome(tokenId),
+            "\"}],\"image\":\"data:image/svg+xml;base64,",
+            Base64.encode(bytes(_image(tokenId))),
+            "\"}"
+        );
+
+        return string(abi.encodePacked(
+            "data:application/json;base64,",
+            Base64.encode(json)
+        ));
+    }
+
+    function withdraw(address payable to) external onlyOwner {
+        (bool success,) = to.call{value:address(this).balance}("");
+        require(success, "could not send");
     }
 }

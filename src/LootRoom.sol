@@ -16,8 +16,8 @@ abstract contract LootRoom {
     // Containers
 
     function getBiomeName(uint8 val) private pure returns (string memory) {
-        if (128 >= val) { return "Room"; }
-        if (200 >= val) { return "Hazard"; }
+        if (184 >= val) { return "Room"; }
+        if (200 >= val) { return "Pit"; }
         if (216 >= val) { return "Lair"; }
         if (232 >= val) { return "Refuge"; }
         if (243 >= val) { return "Shop"; }
@@ -34,7 +34,7 @@ abstract contract LootRoom {
         uint8 val = uint8(bytes32(tokenId)[1]);
 
         if (128 >= val) { return "Stone"; }
-        if (200 >= val) { return "Wood"; }
+        if (200 >= val) { return "Wooden"; }
         if (216 >= val) { return "Mud"; }
         if (232 >= val) { return "Brick"; }
         if (243 >= val) { return "Granite"; }
@@ -67,7 +67,7 @@ abstract contract LootRoom {
     function getOpinion(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[6]);
 
-        if (229 >= val) { return "Normal"; }
+        if (229 >= val) { return "Unremarkable"; }
         if (233 >= val) { return "Unusual"; }
         if (237 >= val) { return "Interesting"; }
         if (240 >= val) { return "Strange"; }
@@ -104,7 +104,7 @@ abstract contract LootRoom {
         if ( 98 >= val) { return "Cozy"; }
         if (108 >= val) { return "Small"; }
 
-        if (146 >= val) { return ""; }
+        if (146 >= val) { return "Average-Sized"; }
 
         if (156 >= val) { return "Good-Sized"; }
         if (166 >= val) { return "Large"; }
@@ -131,7 +131,7 @@ abstract contract LootRoom {
     function getDescription(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[8]);
 
-        if ( 15 >= val) { return "Boiling"; }
+        if ( 15 >= val) { return "Sweltering"; }
         if ( 31 >= val) { return "Freezing"; }
         if ( 47 >= val) { return "Dim"; }
         if ( 63 >= val) { return "Bright"; }
@@ -221,10 +221,47 @@ abstract contract LootRoom {
         ));
     }
 
+    function _svgRoom(uint256 tokenId) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            "<text x='125' y='130' text-align='left' text-anchor='start'><tspan>",
+            _article(tokenId),
+            "</tspan><tspan x='125' dy='25'>",
+            getOpinion(tokenId), "</tspan><tspan x='125' dy='25'>",
+            getSize(tokenId), "</tspan><tspan x='125' dy='25'>",
+            getDescription(tokenId), "</tspan><tspan x='125' dy='25'>",
+            getMaterial(tokenId), "</tspan><tspan x='125' dy='25'>",
+            getBiome(tokenId), ".</tspan><tspan x='125' dy='25'>&#160;</tspan>",
+            _svgContainer(tokenId, 0),
+            _svgContainer(tokenId, 1)
+
+            // I bloody hate the stack...
+        ));
+    }
+
+    function _svgContainer(
+        uint256 tokenId,
+        uint256 idx
+    ) private pure returns (string memory) {
+        string memory container = getContainer(tokenId, idx);
+        if (bytes(container).length == 0) {
+            return "";
+        } else {
+            return string(abi.encodePacked(
+                "<tspan x='125' dy='25'>", container, "</tspan>\n"
+            ));
+        }
+    }
+
+    function _article(uint256 tokenId) private pure returns (string memory) {
+        uint8 val = uint8(bytes32(tokenId)[6]);
+        if (237 >= val) { return "An"; }
+        return "A";
+    }
+
     function _image(uint256 tokenId) internal pure returns (string memory) {
         return string(abi.encodePacked(
             "<?xml version='1.0' encoding='UTF-8'?>"
-            "<svg version='1.1' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg' style='background:#000;white-space:pre-line;'>"
+            "<svg version='1.1' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg' style='background:#000'>"
             "<g fill='#fff' font-size='20px' font-family='serif' text-align='center' text-anchor='middle'>",
 
             // Edge Indicators
@@ -233,20 +270,14 @@ abstract contract LootRoom {
             _svgSouth(tokenId),
             _svgWest(tokenId),
 
-            /*
-             * Center Text
-             */
-            "<text x='125' y='130' text-align='left' text-anchor='start'><tspan>A</tspan>\n"
-            "<tspan>Strange</tspan>\n"
-            "<tspan>Lilliputian</tspan>\n"
-            "<tspan>Dank</tspan>\n"
-            "<tspan>Marble</tspan>\n"
-            "<tspan>Shrine.</tspan>\n"
-            "\n"
-            "<tspan>Barrel</tspan>\n"
-            "<tspan>Basket</tspan>\n"
-            "<tspan>Strongbox</tspan>\n"
-            "<tspan>Crate</tspan></text>\n"
+            // Room
+            _svgRoom(tokenId),
+
+            // I bloody hate the stack...
+            _svgContainer(tokenId, 2),
+            _svgContainer(tokenId, 3),
+
+            "</text>\n"
             "</g>"
             "</svg>"
         ));

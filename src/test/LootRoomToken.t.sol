@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.6;
 
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./utils/LootRoomTokenTest.sol";
 import {Errors} from "../LootRoomToken.sol";
 
@@ -52,7 +53,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(initialLot);
         assertEq(initialLot, purchasedLot);
 
-        try render.getLootTokenId(purchasedLot) { fail(); }
+        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
         catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
@@ -80,7 +81,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(0);
         assertEq(initialLot, purchasedLot);
 
-        try render.getLootTokenId(purchasedLot) { fail(); }
+        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
         catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
@@ -98,7 +99,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value * 4}(0);
         assertTrue(initialLot != purchasedLot);
 
-        try render.getLootTokenId(purchasedLot) { fail(); }
+        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
         catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
@@ -114,7 +115,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: 0}(0);
         assertEq(initialLot, purchasedLot);
 
-        try render.getLootTokenId(purchasedLot) { fail(); }
+        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
         catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
@@ -140,7 +141,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(initialLot);
         assertEq(initialLot, purchasedLot);
 
-        try render.getLootTokenId(purchasedLot) { fail(); }
+        try lootRoomToken.getLootTokenId(purchasedLot) { fail(); }
         catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
         }
@@ -159,7 +160,7 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
         uint256 tokenId = lootRoomToken.claim(myBag);
         assertTrue(initialLot != tokenId);
 
-        assertEq(render.getLootTokenId(tokenId), 1);
+        assertEq(lootRoomToken.getLootTokenId(tokenId), 1);
         assertEq(lootRoomToken.ownerOf(tokenId), address(this));
 
         uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
@@ -169,7 +170,7 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
 
     function testClaimOwn() public {
         uint256 tokenId = lootRoomToken.claim(myBag);
-        assertEq(render.getLootTokenId(tokenId), 1);
+        assertEq(lootRoomToken.getLootTokenId(tokenId), 1);
         assertEq(lootRoomToken.ownerOf(tokenId), address(this));
     }
 
@@ -186,6 +187,96 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
         try lootRoomToken.claim(myBag) { fail(); }
         catch Error(string memory error) {
             assertEq(error, Errors.ALREADY_CLAIMED);
+        }
+    }
+}
+
+contract LootRoomTokenBuyReentrant is LootRoomTokenTest, IERC721Receiver {
+    bool received;
+    uint256 initialLot;
+
+    function testSafeBuyReentrant() public {
+        initialLot = lootRoomToken.getForSale();
+        received = false;
+        uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
+        lootRoomToken.safeBuy{value: value}(0);
+        assertTrue(received);
+        assertEq(lootRoomToken.ownerOf(initialLot), address(this));
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external override returns (bytes4) {
+        uint256 value = lootRoomToken.getPrice();
+
+        // Verify that rebuying the same token fails.
+        try lootRoomToken.buy{value: value}(initialLot) { fail(); }
+        catch Error(string memory error) {
+            assertEq(error, Errors.SOLD_OUT);
+        }
+
+        // Verify that buying a different token works.
+        uint256 bought = lootRoomToken.buy{value: value}(0);
+        assertEq(lootRoomToken.ownerOf(bought), address(this));
+
+        received = true;
+        return IERC721Receiver.onERC721Received.selector;
+    }
+}
+
+contract LootRoomTokenClaimReentrant is LootRoomTokenTest, IERC721Receiver {
+    bool received;
+
+    function testSafeClaimReentrant() public {
+        received = false;
+        lootRoomToken.safeClaim(myBag);
+        assertTrue(received);
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external override returns (bytes4) {
+        try lootRoomToken.claim(myBag) { fail(); }
+        catch Error(string memory error) {
+            assertEq(error, Errors.ALREADY_CLAIMED);
+            received = true;
+        }
+        return IERC721Receiver.onERC721Received.selector;
+    }
+}
+
+contract LootRoomTokenWithdraw is LootRoomTokenTest {
+    receive() external payable {}
+
+    function testWithdrawAsOwner() public {
+        uint256 initialBalance = address(this).balance;
+
+        uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
+        lootRoomToken.buy{value: value}(0);
+        assertEq(address(lootRoomToken).balance, value);
+        assertLt(address(this).balance, initialBalance);
+
+        lootRoomToken.withdraw(payable(this));
+
+        assertEq(address(this).balance, initialBalance);
+    }
+
+    function testWithdrawNonOwner() public {
+        lootRoomToken.renounceOwnership();
+
+        uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
+        lootRoomToken.buy{value: value}(0);
+        assertEq(address(lootRoomToken).balance, value);
+
+        try lootRoomToken.withdraw(payable(this)) { fail(); }
+        catch Error(string memory error) {
+            assertEq(error, "Ownable: caller is not the owner");
         }
     }
 }
