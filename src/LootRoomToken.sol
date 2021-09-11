@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.6;
 
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@base64-sol/base64.sol";
@@ -120,16 +121,77 @@ contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
         return tokenId;
     }
 
+    function tokenName(uint256 tokenId) public pure returns (string memory) {
+        uint256 num = uint256(keccak256(abi.encodePacked(tokenId))) & 0xFFFFFF;
+
+        return string(abi.encodePacked(
+            getOpinion(tokenId),
+            " ",
+            getBiome(tokenId),
+            " #",
+            Strings.toString(num)
+        ));
+    }
+
+    function tokenDescription(
+        uint256 tokenId
+    ) public pure returns (string memory) {
+        uint256 c;
+        c  = bytes(getContainer(tokenId, 0)).length == 0 ? 0 : 1;
+        c += bytes(getContainer(tokenId, 1)).length == 0 ? 0 : 1;
+        c += bytes(getContainer(tokenId, 2)).length == 0 ? 0 : 1;
+        c += bytes(getContainer(tokenId, 3)).length == 0 ? 0 : 1;
+
+        string memory containers;
+        if (0 == c) {
+            containers = "";
+        } else if (1 == c) {
+            containers = "You find one container.";
+        } else {
+            containers = string(abi.encodePacked(
+                "You find ",
+                Strings.toString(c),
+                " containers."
+            ));
+        }
+
+        bytes memory exits = abi.encodePacked(
+            getExitPassable(tokenId, 0) ? string(abi.encodePacked(" To the North, there is a ", getExitBiome(tokenId, 0), ".")) : "",
+            getExitPassable(tokenId, 1) ? string(abi.encodePacked(" To the East, there is a ", getExitBiome(tokenId, 1), ".")) : "",
+            getExitPassable(tokenId, 2) ? string(abi.encodePacked(" To the South, there is a ", getExitBiome(tokenId, 2), ".")) : "",
+            getExitPassable(tokenId, 3) ? string(abi.encodePacked(" To the West, there is a ", getExitBiome(tokenId, 3), ".")) : ""
+        );
+
+        return string(abi.encodePacked(
+            _article(tokenId),
+            " ",
+            getOpinion(tokenId),
+            " ",
+            getBiome(tokenId),
+            " with a mostly ",
+            getMaterial(tokenId),
+            " construction. Compared to other rooms it is ",
+            getSize(tokenId),
+            ", and feels ",
+            getDescription(tokenId),
+            ". ",
+            containers,
+            exits
+        ));
+    }
+
+
     function tokenURI(uint256 tokenId) public override pure returns (string memory) {
-        // TODO: Name
-        // TODO: Description
         bytes memory json = abi.encodePacked(
-            "{\"description\":\"\",\"name\":\"",
-            "TODO",
+            "{\"description\":\"", tokenDescription(tokenId),"\",\"name\":\"",
+            tokenName(tokenId),
             "\",\"attributes\":[{\"trait_type\":\"Opinion\",\"value\":\"",
             getOpinion(tokenId),
             "\"},{\"trait_type\":\"Size\",\"value\":\"",
-            getSize(tokenId),
+            getSize(tokenId)
+        );
+
+        bytes memory json2 = abi.encodePacked(
             "\"},{\"trait_type\":\"Description\",\"value\":\"",
             getDescription(tokenId),
             "\"},{\"trait_type\":\"Material\",\"value\":\"",
@@ -143,7 +205,7 @@ contract LootRoomToken is Ownable, Random, ERC721, LootRoom {
 
         return string(abi.encodePacked(
             "data:application/json;base64,",
-            Base64.encode(json)
+            Base64.encode(abi.encodePacked(json, json2))
         ));
     }
 

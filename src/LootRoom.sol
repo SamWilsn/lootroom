@@ -252,7 +252,7 @@ abstract contract LootRoom {
         }
     }
 
-    function _article(uint256 tokenId) private pure returns (string memory) {
+    function _article(uint256 tokenId) internal pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[6]);
         if (237 >= val) { return "An"; }
         return "A";
