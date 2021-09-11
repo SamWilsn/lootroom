@@ -1,0 +1,103 @@
+Note: have to count the number of open sides around the whole world to prevent it getting sealed in.
+
+enum Biome {
+    Boring,         // (128/256) Mostly empty rooms, like hallways
+    Dangerous,      // ( 72/256) Traps, damaged floors, fires, etc
+    Lair,           // ( 16/256) Harmful monsters
+    Refuge,         // ( 16/256) Helpful creatures
+    Shop,           // ( 11/256) Buy/sell stuff.
+    Shrine,         // ( 11/256) Religious stuff?
+    Treasure,       // (  2/256) TREASURE!
+}
+
+enum Tier {
+    Least,          // (128/256)
+    Lesser,         // ( 60/256)
+    Greater,        // ( 60/256)
+    Greatest,       // (  8/256)
+}
+
+enum ContainerKind {
+    None,           // (229/256)
+    Barrel,         // (  2/256)
+    Basket,         // (  2/256)
+    Bucket,         // (  2/256)
+    Chest,          // (  2/256)
+    Coffer,         // (  2/256)
+    Pouch,          // (  2/256)
+    Sack,           // (  2/256)
+    Crate,          // (  2/256)
+    Shelf,          // (  2/256)
+    Bin,            // (  2/256)
+    Box,            // (  2/256)
+    Vase,           // (  2/256)
+    Jar,            // (  2/256)
+    Strongbox,      // (  1/256)
+}
+
+enum Size {
+    Infinitesimal,  // (  1/256)
+    Microscopic,    // (  2/256)
+    Lilliputian,    // (  2/256)
+    Minute,         // (  3/256)
+    Minuscule,      // (  3/256)
+    Miniature,      // (  4/256)
+    Teensy,         // (  4/256)
+    Cramped,        // (  5/256)
+    Measly,         // (  5/256)
+    Puny,           // (  6/256)
+    Wee,            // (  6/256)
+    Tiny,           // (  7/256)
+    Baby,           // (  7/256)
+    Confined,       // (  8/256)
+    Undersized,     // (  8/256)
+    Petite,         // (  9/256)
+    Little,         // (  9/256)
+    Cozy,           // ( 10/256)
+    Small,          // ( 10/256)
+
+    Normal,         // ( 38/256)
+
+    GoodSized,      // ( 10/256)
+    Large,          // ( 10/256)
+    Sizable,        // (  9/256)
+    Big,            // (  9/256)
+    Oversized,      // (  8/256)
+    Huge,           // (  8/256)
+    Extensive,      // (  7/256)
+    Giant,          // (  7/256)
+    Enormous,       // (  6/256)
+    Gigantic,       // (  6/256)
+    Massive,        // (  5/256)
+    Immense,        // (  5/256)
+    Vast,           // (  4/256)
+    Colossal,       // (  4/256)
+    Titanic,        // (  3/256)
+    Humongous,      // (  3/256)
+    Gargantuan,     // (  2/256)
+    Monumental,     // (  2/256)
+    Immeasurable,   // (  1/256)
+}
+
+struct Exit {
+    passable: bool,             // [ 1]
+    ???                         // [ 7]
+    biome: Biome,               // [ 8]
+}
+
+struct Container {
+    kind: ContainerKind         // [ 8]
+    tier: Tier,                 // [ 8]
+}
+
+struct Room {
+    biome: Biome,               // [ 8]
+    tier: Tier,                 // [ 8]
+    
+    containers: Container[4]    // [64]
+    
+    north: Exit,                // [16]
+    east: Exit,                 // [16]
+    south: Exit,                // [16]
+    west: Exit,                 // [16]
+}
