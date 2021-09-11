@@ -10,29 +10,44 @@ enum Biome {
     Treasure,       // (  2/256) TREASURE!
 }
 
-enum Tier {
-    Least,          // (128/256)
-    Lesser,         // ( 60/256)
-    Greater,        // ( 60/256)
-    Greatest,       // (  8/256)
-}
-
 enum ContainerKind {
     None,           // (229/256)
-    Barrel,         // (  2/256)
-    Basket,         // (  2/256)
-    Bucket,         // (  2/256)
-    Chest,          // (  2/256)
+    Barrel,         // (  4/256)
+    Basket,         // (  4/256)
+    Bucket,         // (  3/256)
+    Chest,          // (  3/256)
     Coffer,         // (  2/256)
     Pouch,          // (  2/256)
     Sack,           // (  2/256)
     Crate,          // (  2/256)
     Shelf,          // (  2/256)
-    Bin,            // (  2/256)
     Box,            // (  2/256)
-    Vase,           // (  2/256)
-    Jar,            // (  2/256)
     Strongbox,      // (  1/256)
+}
+
+enum Opinion {
+    Normal,
+    Unusual,
+    Interesting,
+    Strange,
+    Bizarre,
+    Curious,
+    Memorable,
+    Remarkable,
+    Notable,
+    Peculiar,
+    Puzzling,
+    Weird,
+}
+
+enum Material {
+    Stone,
+    Wood,
+    Mud,
+    Brick,
+    Granite,
+    Bone,
+    Marble,
 }
 
 enum Size {
@@ -56,7 +71,7 @@ enum Size {
     Cozy,           // ( 10/256)
     Small,          // ( 10/256)
 
-    Normal,         // ( 38/256)
+    Average,        // ( 38/256)
 
     GoodSized,      // ( 10/256)
     Large,          // ( 10/256)
@@ -79,20 +94,47 @@ enum Size {
     Immeasurable,   // (  1/256)
 }
 
+enum Physical {
+    Boiling,
+    Freezing,
+    
+    Dim,
+    Bright,
+
+    Barren,
+    Plush,
+
+    Filthy,
+    Dingy,
+    
+    Airy,
+    Stuffy,
+
+    Rough,
+    Untidy,
+    Dank,
+    Moist,
+    
+    Soulless,
+    Exotic,
+}
+
 struct Exit {
-    passable: bool,             // [ 1]
+    blocked: bool,              // [ 1]
     ???                         // [ 7]
     biome: Biome,               // [ 8]
 }
 
 struct Container {
     kind: ContainerKind         // [ 8]
-    tier: Tier,                 // [ 8]
 }
 
 struct Room {
+    opinion: Opinion,           // [ 8]
+    size: Size,                 // [ 8]
+    physical: Physical,         // [ 8]
+    material: Material,         // [ 8]
     biome: Biome,               // [ 8]
-    tier: Tier,                 // [ 8]
     
     containers: Container[4]    // [64]
     

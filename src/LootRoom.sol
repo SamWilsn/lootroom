@@ -3,105 +3,252 @@
 pragma solidity ^0.8.6;
 
 library LootRoomErrors {
-    string constant NO_EXIT = "no exit";
-    string constant ALREADY_LINKED = "already linked";
+    string constant internal OUT_OF_RANGE = "out of range";
+    string constant internal NO_LOOT = "no loot bag";
 }
 
 abstract contract LootRoom {
-    uint256 constant private NO_EXIT = type(uint256).max;
+    // Opinion
+    // Size
+    // Description
+    // Material
+    // Biome
+    // Containers
 
-    struct Room {
-        uint256 north;
-        uint256 east;
-        uint256 south;
-        uint256 west;
+    function getBiomeName(uint8 val) private pure returns (string memory) {
+        if (128 >= val) { return "Room"; }
+        if (200 >= val) { return "Hazard"; }
+        if (216 >= val) { return "Lair"; }
+        if (232 >= val) { return "Refuge"; }
+        if (243 >= val) { return "Shop"; }
+        if (254 >= val) { return "Shrine"; }
+        return "Treasury";
     }
 
-    mapping (uint256 => Room) private s_Rooms;
+    function getBiome(uint256 tokenId) public pure returns (string memory) {
+        uint8 val = uint8(bytes32(tokenId)[0]);
+        return getBiomeName(val);
+    }
 
-    function _initializeRoom(
+    function getMaterial(uint256 tokenId) public pure returns (string memory) {
+        uint8 val = uint8(bytes32(tokenId)[1]);
+
+        if (128 >= val) { return "Stone"; }
+        if (200 >= val) { return "Wood"; }
+        if (216 >= val) { return "Mud"; }
+        if (232 >= val) { return "Brick"; }
+        if (243 >= val) { return "Granite"; }
+        if (254 >= val) { return "Bone"; }
+        return "Marble";
+    }
+
+    function getContainer(
         uint256 tokenId,
-        bool openNorth,
-        bool openEast,
-        bool openSouth,
-        bool openWest
-    ) internal {
-        Room storage room = s_Rooms[tokenId];
-        room.north = openNorth ? 0 : NO_EXIT;
-        room.east  = openEast  ? 0 : NO_EXIT;
-        room.south = openSouth ? 0 : NO_EXIT;
-        room.west  = openWest  ? 0 : NO_EXIT;
+        uint256 idx
+    ) public pure returns (string memory) {
+        require(4 > idx, LootRoomErrors.OUT_OF_RANGE);
+        uint8 val = uint8(bytes32(tokenId)[2 + idx]);
+        // 2, 3, 4, 5
+
+        if (229 >= val) { return ""; }
+        if (233 >= val) { return "Barrel"; }
+        if (237 >= val) { return "Basket"; }
+        if (240 >= val) { return "Bucket"; }
+        if (243 >= val) { return "Chest"; }
+        if (245 >= val) { return "Coffer"; }
+        if (247 >= val) { return "Pouch"; }
+        if (249 >= val) { return "Sack"; }
+        if (251 >= val) { return "Crate"; }
+        if (253 >= val) { return "Shelf"; }
+        if (255 >= val) { return "Box"; }
+        return "Strongbox";
     }
 
-    function northOf(uint256 tokenId) public view returns (uint256) {
-        uint256 id = s_Rooms[tokenId].north;
-        require(NO_EXIT != id, LootRoomErrors.NO_EXIT);
-        return id;
+    function getOpinion(uint256 tokenId) public pure returns (string memory) {
+        uint8 val = uint8(bytes32(tokenId)[6]);
+
+        if (229 >= val) { return "Normal"; }
+        if (233 >= val) { return "Unusual"; }
+        if (237 >= val) { return "Interesting"; }
+        if (240 >= val) { return "Strange"; }
+        if (243 >= val) { return "Bizarre"; }
+        if (245 >= val) { return "Curious"; }
+        if (247 >= val) { return "Memorable"; }
+        if (249 >= val) { return "Remarkable"; }
+        if (251 >= val) { return "Notable"; }
+        if (253 >= val) { return "Peculiar"; }
+        if (255 >= val) { return "Puzzling"; }
+        return "Weird";
     }
 
-    function eastOf(uint256 tokenId) public view returns (uint256) {
-        uint256 id = s_Rooms[tokenId].east;
-        require(NO_EXIT != id, LootRoomErrors.NO_EXIT);
-        return id;
+    function getSize(uint256 tokenId) public pure returns (string memory) {
+        uint8 val = uint8(bytes32(tokenId)[7]);
+
+        if (  0 == val) { return "Infinitesimal"; }
+        if (  2 >= val) { return "Microscopic"; }
+        if (  4 >= val) { return "Lilliputian"; }
+        if (  7 >= val) { return "Minute"; }
+        if ( 10 >= val) { return "Minuscule"; }
+        if ( 14 >= val) { return "Miniature"; }
+        if ( 18 >= val) { return "Teensy"; }
+        if ( 23 >= val) { return "Cramped"; }
+        if ( 28 >= val) { return "Measly"; }
+        if ( 34 >= val) { return "Puny"; }
+        if ( 40 >= val) { return "Wee"; }
+        if ( 47 >= val) { return "Tiny"; }
+        if ( 54 >= val) { return "Baby"; }
+        if ( 62 >= val) { return "Confined"; }
+        if ( 70 >= val) { return "Undersized"; }
+        if ( 79 >= val) { return "Petite"; }
+        if ( 88 >= val) { return "Little"; }
+        if ( 98 >= val) { return "Cozy"; }
+        if (108 >= val) { return "Small"; }
+
+        if (146 >= val) { return ""; }
+
+        if (156 >= val) { return "Good-Sized"; }
+        if (166 >= val) { return "Large"; }
+        if (175 >= val) { return "Sizable"; }
+        if (184 >= val) { return "Big"; }
+        if (192 >= val) { return "Oversized"; }
+        if (200 >= val) { return "Huge"; }
+        if (207 >= val) { return "Extensive"; }
+        if (214 >= val) { return "Giant"; }
+        if (220 >= val) { return "Enormous"; }
+        if (226 >= val) { return "Gigantic"; }
+        if (231 >= val) { return "Massive"; }
+        if (236 >= val) { return "Immense"; }
+        if (240 >= val) { return "Vast"; }
+        if (244 >= val) { return "Colossal"; }
+        if (247 >= val) { return "Titanic"; }
+        if (250 >= val) { return "Humongous"; }
+        if (252 >= val) { return "Gargantuan"; }
+        if (254 >= val) { return "Monumental"; }
+
+        return "Immeasurable";
     }
 
-    function southOf(uint256 tokenId) public view returns (uint256) {
-        uint256 id = s_Rooms[tokenId].south;
-        require(NO_EXIT != id, LootRoomErrors.NO_EXIT);
-        return id;
+    function getDescription(uint256 tokenId) public pure returns (string memory) {
+        uint8 val = uint8(bytes32(tokenId)[8]);
+
+        if ( 15 >= val) { return "Boiling"; }
+        if ( 31 >= val) { return "Freezing"; }
+        if ( 47 >= val) { return "Dim"; }
+        if ( 63 >= val) { return "Bright"; }
+        if ( 79 >= val) { return "Barren"; }
+        if ( 95 >= val) { return "Plush"; }
+        if (111 >= val) { return "Filthy"; }
+        if (127 >= val) { return "Dingy"; }
+        if (143 >= val) { return "Airy"; }
+        if (159 >= val) { return "Stuffy"; }
+        if (175 >= val) { return "Rough"; }
+        if (191 >= val) { return "Untidy"; }
+        if (207 >= val) { return "Dank"; }
+        if (223 >= val) { return "Moist"; }
+        if (239 >= val) { return "Soulless"; }
+        return "Exotic";
     }
 
-    function westOf(uint256 tokenId) public view returns (uint256) {
-        uint256 id = s_Rooms[tokenId].west;
-        require(NO_EXIT != id, LootRoomErrors.NO_EXIT);
-        return id;
+    function getExitBiome(
+        uint256 tokenId,
+        uint256 direction
+    ) public pure returns (string memory) {
+        require(4 > direction, LootRoomErrors.OUT_OF_RANGE);
+        uint8 val = uint8(bytes32(tokenId)[9 + direction]);
+        // 9, 10, 11, 12
+        return getBiomeName(val);
     }
 
-    function _linkNorthSouth(uint256 northern, uint256 southern) internal {
-        require(NO_EXIT != northern && NO_EXIT != southern, LootRoomErrors.NO_EXIT);
-
-        require(0 == s_Rooms[northern].south, LootRoomErrors.ALREADY_LINKED);
-        require(0 == s_Rooms[southern].north, LootRoomErrors.ALREADY_LINKED);
-
-        s_Rooms[northern].south = southern;
-        s_Rooms[southern].north = northern;
+    function getExitPassable(
+        uint256 tokenId,
+        uint256 direction
+    ) public pure returns (bool) {
+        require(4 > direction, LootRoomErrors.OUT_OF_RANGE);
+        uint8 val = uint8(bytes32(tokenId)[13 + direction]);
+        // 13, 14, 15, 16
+        return 128 > val;
     }
 
-    function _linkEastWest(uint256 eastern, uint256 western) internal {
-        require(NO_EXIT != eastern && NO_EXIT != western, LootRoomErrors.NO_EXIT);
-
-        require(0 == s_Rooms[eastern].west, LootRoomErrors.ALREADY_LINKED);
-        require(0 == s_Rooms[western].east, LootRoomErrors.ALREADY_LINKED);
-
-        s_Rooms[eastern].west = western;
-        s_Rooms[western].east = eastern;
+    function getLootTokenId(uint256 tokenId) public pure returns (uint256) {
+        uint256 lootTokenId = tokenId & 0xFFFF;
+        require(0 < lootTokenId && 8001 > lootTokenId, LootRoomErrors.NO_LOOT);
+        return lootTokenId;
     }
 
-    function _unlinkNorth(uint256 southern) internal {
-        uint256 northern = s_Rooms[southern].north;
-        require(NO_EXIT != northern, LootRoomErrors.NO_EXIT);
-        s_Rooms[southern].north = 0;
-        s_Rooms[northern].south = 0;
+    function _svgNorth(uint256 tokenId) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            "<text x='250' y='65' font-size='20px'><tspan>",
+            getExitBiome(tokenId, 0),
+            "</tspan></text>",
+            (getExitPassable(tokenId, 0) ?
+                "<path d='m250 15 15 26h-30z'/>"
+                    : "<rect x='75' y='75' width='350' height='15'/>")
+
+        ));
     }
 
-    function _unlinkSouth(uint256 northern) internal {
-        uint256 southern = s_Rooms[northern].south;
-        require(NO_EXIT != southern, LootRoomErrors.NO_EXIT);
-        s_Rooms[northern].south = 0;
-        s_Rooms[southern].north = 0;
+    function _svgEast(uint256 tokenId) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            "<text transform='rotate(90)' x='250' y='-435'><tspan>",
+            getExitBiome(tokenId, 1),
+            "</tspan></text>",
+            (getExitPassable(tokenId, 1) ?
+                "<path d='m483 248-26 15v-30z'/>"
+                : "<rect x='410' y='75' width='15' height='350'/>")
+
+        ));
     }
 
-    function _unlinkWest(uint256 eastern) internal {
-        uint256 western = s_Rooms[eastern].west;
-        require(NO_EXIT != western, LootRoomErrors.NO_EXIT);
-        s_Rooms[eastern].west = 0;
-        s_Rooms[western].east = 0;
+    function _svgSouth(uint256 tokenId) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            "<text transform='scale(-1)' x='-250' y='-435'><tspan>",
+            getExitBiome(tokenId, 2),
+            "</tspan></text>",
+            (getExitPassable(tokenId, 2) ?
+                "<path d='m250 481 15-26h-30z'/>"
+                : "<rect x='75' y='410' width='350' height='15'/>")
+        ));
     }
 
-    function _unlinkEast(uint256 western) internal {
-        uint256 eastern = s_Rooms[western].east;
-        require(NO_EXIT != eastern, LootRoomErrors.NO_EXIT);
-        s_Rooms[western].east = 0;
-        s_Rooms[eastern].west = 0;
+    function _svgWest(uint256 tokenId) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            "<text transform='rotate(-90)' x='-250' y='65'><tspan>",
+            getExitBiome(tokenId, 3),
+            "</tspan></text>",
+            (getExitPassable(tokenId, 3) ?
+                "<path d='m17 248 26 15v-30z'/>"
+                : "<rect x='75' y='75' width='15' height='350'/>")
+        ));
+    }
+
+    function _image(uint256 tokenId) internal pure returns (string memory) {
+        return string(abi.encodePacked(
+            "<?xml version='1.0' encoding='UTF-8'?>"
+            "<svg version='1.1' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg' style='background:#000;white-space:pre-line;'>"
+            "<g fill='#fff' font-size='20px' font-family='serif' text-align='center' text-anchor='middle'>",
+
+            // Edge Indicators
+            _svgNorth(tokenId),
+            _svgEast(tokenId),
+            _svgSouth(tokenId),
+            _svgWest(tokenId),
+
+            /*
+             * Center Text
+             */
+            "<text x='125' y='130' text-align='left' text-anchor='start'><tspan>A</tspan>\n"
+            "<tspan>Strange</tspan>\n"
+            "<tspan>Lilliputian</tspan>\n"
+            "<tspan>Dank</tspan>\n"
+            "<tspan>Marble</tspan>\n"
+            "<tspan>Shrine.</tspan>\n"
+            "\n"
+            "<tspan>Barrel</tspan>\n"
+            "<tspan>Basket</tspan>\n"
+            "<tspan>Strongbox</tspan>\n"
+            "<tspan>Crate</tspan></text>\n"
+            "</g>"
+            "</svg>"
+        ));
     }
 }

@@ -7,6 +7,7 @@ import "../../LootRoom.sol";
 import "./Hevm.sol";
 
 contract TestLootRoom is LootRoom {
+    /*
     function linkEastWest(uint256 eastern, uint256 western) public {
         _linkEastWest(eastern, western);
     }
@@ -14,6 +15,7 @@ contract TestLootRoom is LootRoom {
     function linkNorthSouth(uint256 northern, uint256 southern) public {
         _linkNorthSouth(northern, southern);
     }
+    */
 }
 
 contract LootRoomTest is DSTest {

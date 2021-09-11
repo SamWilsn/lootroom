@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<svg version='1.1' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg' style='background:#000;white-space:pre-line;'>
+ <g fill='#fff' font-size='20px' font-family='serif' text-align='center' text-anchor='middle'>
+  <path d='m250 15 15 26h-30z'/>
+  <path d='m250 481 15-26h-30z'/>
+  <path d='m483 248-26 15v-30z'/>
+  <path d='m17 248 26 15v-30z'/>
+  <rect x='75' y='75' width='350' height='15'/>
+  <rect x='75' y='410' width='350' height='15'/>
+  <rect x='75' y='75' width='15' height='350'/>
+  <rect x='410' y='75' width='15' height='350'/>
+  <text x='250' y='65' font-size='20px'><tspan>North Biome</tspan></text>
+  <text transform='scale(-1)' x='-250' y='-435'><tspan>South Biome</tspan></text>
+  <text transform='rotate(90)' x='250' y='-435'><tspan>East Biome</tspan></text>
+  <text transform='rotate(-90)' x='-250' y='65'><tspan>West Biome</tspan></text>
+  <text x='125' y='130' text-align='left' text-anchor='start'><tspan>A</tspan>
+    <tspan>Strange</tspan>
+    <tspan>Lilliputian</tspan>
+    <tspan>Dank</tspan>
+    <tspan>Marble</tspan>
+    <tspan>Shrine.</tspan>
+
+    <tspan>Barrel</tspan>
+    <tspan>Basket</tspan>
+    <tspan>Strongbox</tspan>
+    <tspan>Crate</tspan></text>
+ </g>
+</svg>
