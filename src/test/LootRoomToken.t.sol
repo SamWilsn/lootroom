@@ -57,7 +57,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(initialLot);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.lootId(purchasedLot) {
+        try render.lootId(purchasedLot) {
             fail();
         } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
@@ -87,7 +87,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(0);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.lootId(purchasedLot) {
+        try render.lootId(purchasedLot) {
             fail();
         } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
@@ -106,7 +106,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value * 4}(0);
         assertTrue(initialLot != purchasedLot);
 
-        try lootRoomToken.lootId(purchasedLot) {
+        try render.lootId(purchasedLot) {
             fail();
         } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
@@ -123,7 +123,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: 0}(0);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.lootId(purchasedLot) {
+        try render.lootId(purchasedLot) {
             fail();
         } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
@@ -151,7 +151,7 @@ contract LootRoomTokenAuction is LootRoomTokenTest {
         uint256 purchasedLot = lootRoomToken.buy{value: value}(initialLot);
         assertEq(initialLot, purchasedLot);
 
-        try lootRoomToken.lootId(purchasedLot) {
+        try render.lootId(purchasedLot) {
             fail();
         } catch Error(string memory error) {
             assertEq(error, LootRoomErrors.NO_LOOT);
@@ -171,7 +171,7 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
         uint256 tokenId = lootRoomToken.claim(myBag);
         assertTrue(initialLot != tokenId);
 
-        assertEq(lootRoomToken.lootId(tokenId), 1);
+        assertEq(render.lootId(tokenId), 1);
         assertEq(lootRoomToken.ownerOf(tokenId), address(this));
 
         uint256 value = lootRoomToken.AUCTION_MINIMUM_START();
@@ -181,7 +181,7 @@ contract LootRoomTokenClaim is LootRoomTokenTest {
 
     function testClaimOwn() public {
         uint256 tokenId = lootRoomToken.claim(myBag);
-        assertEq(lootRoomToken.lootId(tokenId), 1);
+        assertEq(render.lootId(tokenId), 1);
         assertEq(lootRoomToken.ownerOf(tokenId), address(this));
     }
 

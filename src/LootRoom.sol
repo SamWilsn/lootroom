@@ -2,12 +2,15 @@
 
 pragma solidity ^0.8.6;
 
+import "@base64-sol/base64.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 library LootRoomErrors {
     string constant internal OUT_OF_RANGE = "out of range";
     string constant internal NO_LOOT = "no loot bag";
 }
 
-abstract contract LootRoom {
+contract LootRoom {
     // Opinion
     // Size
     // Description
@@ -25,7 +28,7 @@ abstract contract LootRoom {
         return "Treasury";
     }
 
-    function roomType(uint256 tokenId) public pure returns (string memory) {
+    function roomType(uint256 tokenId) private pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[0]);
         return biomeName(val);
     }
@@ -224,17 +227,13 @@ abstract contract LootRoom {
     function _svgRoom(uint256 tokenId) private pure returns (string memory) {
         return string(abi.encodePacked(
             "<text x='125' y='130' text-align='left' text-anchor='start'><tspan>",
-            _article(tokenId),
+            article(tokenId),
             "</tspan><tspan x='125' dy='25'>",
             roomOpinion(tokenId), "</tspan><tspan x='125' dy='25'>",
             roomSize(tokenId), "</tspan><tspan x='125' dy='25'>",
             roomModifier(tokenId), "</tspan><tspan x='125' dy='25'>",
             roomMaterial(tokenId), "</tspan><tspan x='125' dy='25'>",
-            roomType(tokenId), ".</tspan><tspan x='125' dy='25'>&#160;</tspan>",
-            _svgContainer(tokenId, 0),
-            _svgContainer(tokenId, 1)
-
-            // I bloody hate the stack...
+            roomType(tokenId), ".</tspan><tspan x='125' dy='25'>&#160;</tspan>"
         ));
     }
 
@@ -252,34 +251,133 @@ abstract contract LootRoom {
         }
     }
 
-    function _article(uint256 tokenId) internal pure returns (string memory) {
+    function _svgEdges(uint256 tokenId) private pure returns (string memory) {
+        return string(abi.encodePacked(
+            _svgNorth(tokenId),
+            _svgEast(tokenId),
+            _svgSouth(tokenId),
+            _svgWest(tokenId)
+        ));
+    }
+
+    function article(uint256 tokenId) public pure returns (string memory) {
         uint8 val = uint8(bytes32(tokenId)[6]);
         if (237 >= val) { return "An"; }
         return "A";
     }
 
-    function _image(uint256 tokenId) internal pure returns (string memory) {
-        return string(abi.encodePacked(
+    function image(uint256 tokenId) public pure returns (string memory) {
+        bytes memory start = abi.encodePacked(
             "<?xml version='1.0' encoding='UTF-8'?>"
             "<svg version='1.1' viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg' style='background:#000'>"
             "<g fill='#fff' font-size='20px' font-family='serif' text-align='center' text-anchor='middle'>",
 
             // Edge Indicators
-            _svgNorth(tokenId),
-            _svgEast(tokenId),
-            _svgSouth(tokenId),
-            _svgWest(tokenId),
+            _svgEdges(tokenId)
+        );
 
+        bytes memory end = abi.encodePacked(
             // Room
             _svgRoom(tokenId),
 
             // I bloody hate the stack...
+            _svgContainer(tokenId, 0),
+            _svgContainer(tokenId, 1),
             _svgContainer(tokenId, 2),
             _svgContainer(tokenId, 3),
 
-            "</text>\n"
+            "</text>"
             "</g>"
             "</svg>"
+        );
+
+        return string(abi.encodePacked(start, end));
+    }
+
+    function tokenName(uint256 tokenId) public pure returns (string memory) {
+        uint256 num = uint256(keccak256(abi.encodePacked(tokenId))) & 0xFFFFFF;
+
+        return string(abi.encodePacked(
+            roomOpinion(tokenId),
+            " ",
+            roomType(tokenId),
+            " #",
+            Strings.toString(num)
+        ));
+    }
+
+    function tokenDescription(
+        uint256 tokenId
+    ) public pure returns (string memory) {
+        uint256 c;
+        c  = bytes(roomContainer(tokenId, 0)).length == 0 ? 0 : 1;
+        c += bytes(roomContainer(tokenId, 1)).length == 0 ? 0 : 1;
+        c += bytes(roomContainer(tokenId, 2)).length == 0 ? 0 : 1;
+        c += bytes(roomContainer(tokenId, 3)).length == 0 ? 0 : 1;
+
+        string memory containers;
+        if (0 == c) {
+            containers = "";
+        } else if (1 == c) {
+            containers = "You find one container.";
+        } else {
+            containers = string(abi.encodePacked(
+                "You find ",
+                Strings.toString(c),
+                " containers."
+            ));
+        }
+
+        bytes memory exits = abi.encodePacked(
+            exitPassable(tokenId, 0) ? string(abi.encodePacked(" To the North, there is a ", exitType(tokenId, 0), ".")) : "",
+            exitPassable(tokenId, 1) ? string(abi.encodePacked(" To the East, there is a ", exitType(tokenId, 1), ".")) : "",
+            exitPassable(tokenId, 2) ? string(abi.encodePacked(" To the South, there is a ", exitType(tokenId, 2), ".")) : "",
+            exitPassable(tokenId, 3) ? string(abi.encodePacked(" To the West, there is a ", exitType(tokenId, 3), ".")) : ""
+        );
+
+        return string(abi.encodePacked(
+            article(tokenId),
+            " ",
+            roomOpinion(tokenId),
+            " ",
+            roomType(tokenId),
+            " with a mostly ",
+            roomMaterial(tokenId),
+            " construction. Compared to other rooms it is ",
+            roomSize(tokenId),
+            ", and feels ",
+            roomModifier(tokenId),
+            ". ",
+            containers,
+            exits
+        ));
+    }
+
+    function tokenURI(uint256 tokenId) external pure returns (string memory) {
+        bytes memory json = abi.encodePacked(
+            "{\"description\":\"", tokenDescription(tokenId),"\",\"name\":\"",
+            tokenName(tokenId),
+            "\",\"attributes\":[{\"trait_type\":\"Opinion\",\"value\":\"",
+            roomOpinion(tokenId),
+            "\"},{\"trait_type\":\"Size\",\"value\":\"",
+            roomSize(tokenId)
+        );
+
+        bytes memory json2 = abi.encodePacked(
+            "\"},{\"trait_type\":\"Description\",\"value\":\"",
+            roomModifier(tokenId),
+            "\"},{\"trait_type\":\"Material\",\"value\":\"",
+            roomMaterial(tokenId),
+            "\"},{\"trait_type\":\"Biome\",\"value\":\"",
+            roomType(tokenId),
+            "\"}],\"image\":\"data:image/svg+xml;base64,",
+            Base64.encode(bytes(image(tokenId))),
+            "\"}"
+        );
+
+        return string(abi.encodePacked(
+            "data:application/json;base64,",
+            Base64.encode(abi.encodePacked(json, json2))
         ));
     }
 }

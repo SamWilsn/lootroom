@@ -7,7 +7,7 @@ import "../../LootRoomToken.sol";
 import "./Hevm.sol";
 
 contract TestLootRoomToken is LootRoomToken {
-    constructor(IERC721 loot) LootRoomToken(loot) {
+    constructor(LootRoom render, IERC721 loot) LootRoomToken(render, loot) {
     }
 }
 
@@ -26,6 +26,7 @@ contract LootRoomTokenTest is DSTest {
         Hevm(0x7109709ECfa91a80626fF3989D68f67F5b1DD12D);
 
     // contracts
+    LootRoom internal render;
     MockLoot internal mockLoot;
     TestLootRoomToken internal lootRoomToken;
 
@@ -35,10 +36,11 @@ contract LootRoomTokenTest is DSTest {
 
     function setUp() public virtual {
         mockLoot = new MockLoot();
+        render = new LootRoom();
 
         myBag = mockLoot.mint(address(this), 0x1);
         otherBag = mockLoot.mint(address(hevm), 0x2);
 
-        lootRoomToken = new TestLootRoomToken(mockLoot);
+        lootRoomToken = new TestLootRoomToken(render, mockLoot);
     }
 }
