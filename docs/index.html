@@ -7,6 +7,12 @@
         <link
             rel="shortcut icon"
             href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAAAAABWESUoAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAHJJREFUOMtjYBgFZAEhIQIKpkzGL6/1+48uXgU7/v/fi08+4D8Q+OOWZ7sFUnCXHaeC8v9gUIZLXvwDRMEnSRwK5v2HgrnY5Q3/whT8NcUmz3joPxwcY8SiIPI/EojAlOd8gKzgMTeGAqMOFGA0mm5JBADa1GGqMpNKYgAAAABJRU5ErkJggg==">
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/toastify-js@1.11.1/src/toastify.css"
+            integrity="sha512-GjCBrfMVk9d2TgevQqgGt2FOJHBBVsTwuBdWfbxPsrcVI8zD5vfn/aR5XnaQZMh6tQ3oLHQc3X6pu1XJhs2Szg=="
+            crossorigin="anonymous">
+
         <style>
         @font-face {
             font-family: 'abhaya';
@@ -168,6 +174,11 @@
             integrity="sha512-2YGDJl67sf9MMyIBoFQOq5fOibZ+aAmHoeLpk//WdVNQfGgOL+NojR63rsuyHkEh8o65P724Yg6N7aF5XIQvmg=="
             crossorigin="anonymous"></script>
 
+        <script
+            src="https://unpkg.com/toastify-js@1.11.1/src/toastify.js"
+            integrity="sha512-55m+nq7bzqdQz2vF9AXOYTZtmoikiXcW1XnHNStnk464ewHBwhEeC5z6aqukJ/7n7Y+veO3gPunMydgaX4J8nQ=="
+            crossorigin="anonymous"></script>
+
         <script>
             (function() {
                 "use strict";
@@ -176,9 +187,13 @@
                 const WalletConnectProvider = window.WalletConnectProvider.default;
 
                 // Build the contract.
-                const network = "homestead";
-                const contractAddress = "0x2DC4b124727B58874538b713c2f30eAD6dC39d02";
-                const openseaBase = "https://opensea.io/assets/";
+                // const network = "homestead";
+                // const contractAddress = "0x2DC4b124727B58874538b713c2f30eAD6dC39d02";
+                // const openseaBase = "https://opensea.io/assets/";
+
+                const network = "rinkeby";
+                const contractAddress = "0x730b781A2f763a576c914d49424875f6F7F8A331";
+                const openseaBase = "https://testnets.opensea.io/assets/";
 
                 const infuraId = "7074adf98cbc4afaabda2e09151b8e4b";
                 const etherscanId = "HYND2S92S8FDTGJYQFNCAZBHKFI2R2TSVH";
@@ -788,16 +803,16 @@
                 });
 
                 const fetchForSale = async function() {
-                    //const forSale = await roContract.getForSale();
-                    const forSale = ethers.BigNumber.from("29182069936905408031677645221957553938637172442720556766568979949402042007552");
+                    const forSale = await roContract.getForSale();
+                    //const forSale = ethers.BigNumber.from("29182069936905408031677645221957553938637172442720556766568979949402042007552");
 
-                    //const price = await roContract.getPrice();
-                    const price = ethers.BigNumber.from("0x01bc7daaaaaaaaaaaaa");
+                    const price = await roContract.getPrice();
+                    //const price = ethers.BigNumber.from("0x01bc7daaaaaaaaaaaaa");
 
-                    //const tokenURI = await roContract.tokenURI(forSale);
-                    //const response = await fetch(tokenURI);
-                    //const metadata = await response.json();
-                    const metadata = {"description":"An Unremarkable Room with a mostly Wooden construction. Compared to other rooms it is Huge, and feels Soulless. You find one container. To the North, there is a Refuge. To the East, there is a Room. To the South, there is a Room.","name":"Unremarkable Room #4829309","attributes":[{"trait_type":"Opinion","value":"Unremarkable"},{"trait_type":"Size","value":"Huge"},{"trait_type":"Description","value":"Soulless"},{"trait_type":"Material","value":"Wooden"},{"trait_type":"Biome","value":"Room"}],"image":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz48c3ZnIHZlcnNpb249JzEuMScgdmlld0JveD0nMCAwIDUwMCA1MDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgc3R5bGU9J2JhY2tncm91bmQ6IzAwMCc+PGcgZmlsbD0nI2ZmZicgZm9udC1zaXplPScyMHB4JyBmb250LWZhbWlseT0nc2VyaWYnIHRleHQtYWxpZ249J2NlbnRlcicgdGV4dC1hbmNob3I9J21pZGRsZSc+PHRleHQgeD0nMjUwJyB5PSc2NScgZm9udC1zaXplPScyMHB4Jz48dHNwYW4+UmVmdWdlPC90c3Bhbj48L3RleHQ+PHBhdGggZD0nbTI1MCAxNSAxNSAyNmgtMzB6Jy8+PHRleHQgdHJhbnNmb3JtPSdyb3RhdGUoOTApJyB4PScyNTAnIHk9Jy00MzUnPjx0c3Bhbj5Sb29tPC90c3Bhbj48L3RleHQ+PHBhdGggZD0nbTQ4MyAyNDgtMjYgMTV2LTMweicvPjx0ZXh0IHRyYW5zZm9ybT0nc2NhbGUoLTEpJyB4PSctMjUwJyB5PSctNDM1Jz48dHNwYW4+Um9vbTwvdHNwYW4+PC90ZXh0PjxwYXRoIGQ9J20yNTAgNDgxIDE1LTI2aC0zMHonLz48dGV4dCB0cmFuc2Zvcm09J3JvdGF0ZSgtOTApJyB4PSctMjUwJyB5PSc2NSc+PHRzcGFuPlJvb208L3RzcGFuPjwvdGV4dD48cmVjdCB4PSc3NScgeT0nNzUnIHdpZHRoPScxNScgaGVpZ2h0PSczNTAnLz48dGV4dCB4PScxMjUnIHk9JzEzMCcgdGV4dC1hbGlnbj0nbGVmdCcgdGV4dC1hbmNob3I9J3N0YXJ0Jz48dHNwYW4+QW48L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+VW5yZW1hcmthYmxlPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPkh1Z2U8L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+U291bGxlc3M8L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+V29vZGVuPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPlJvb20uPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPiYjMTYwOzwvdHNwYW4+PHRzcGFuIHg9JzEyNScgZHk9JzI1Jz5Cb3g8L3RzcGFuPgo8L3RleHQ+PC9nPjwvc3ZnPg=="};
+                    const tokenURI = await roContract.tokenURI(forSale);
+                    const response = await fetch(tokenURI);
+                    const metadata = await response.json();
+                    //const metadata = {"description":"An Unremarkable Room with a mostly Wooden construction. Compared to other rooms it is Huge, and feels Soulless. You find one container. To the North, there is a Refuge. To the East, there is a Room. To the South, there is a Room.","name":"Unremarkable Room #4829309","attributes":[{"trait_type":"Opinion","value":"Unremarkable"},{"trait_type":"Size","value":"Huge"},{"trait_type":"Description","value":"Soulless"},{"trait_type":"Material","value":"Wooden"},{"trait_type":"Biome","value":"Room"}],"image":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz48c3ZnIHZlcnNpb249JzEuMScgdmlld0JveD0nMCAwIDUwMCA1MDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgc3R5bGU9J2JhY2tncm91bmQ6IzAwMCc+PGcgZmlsbD0nI2ZmZicgZm9udC1zaXplPScyMHB4JyBmb250LWZhbWlseT0nc2VyaWYnIHRleHQtYWxpZ249J2NlbnRlcicgdGV4dC1hbmNob3I9J21pZGRsZSc+PHRleHQgeD0nMjUwJyB5PSc2NScgZm9udC1zaXplPScyMHB4Jz48dHNwYW4+UmVmdWdlPC90c3Bhbj48L3RleHQ+PHBhdGggZD0nbTI1MCAxNSAxNSAyNmgtMzB6Jy8+PHRleHQgdHJhbnNmb3JtPSdyb3RhdGUoOTApJyB4PScyNTAnIHk9Jy00MzUnPjx0c3Bhbj5Sb29tPC90c3Bhbj48L3RleHQ+PHBhdGggZD0nbTQ4MyAyNDgtMjYgMTV2LTMweicvPjx0ZXh0IHRyYW5zZm9ybT0nc2NhbGUoLTEpJyB4PSctMjUwJyB5PSctNDM1Jz48dHNwYW4+Um9vbTwvdHNwYW4+PC90ZXh0PjxwYXRoIGQ9J20yNTAgNDgxIDE1LTI2aC0zMHonLz48dGV4dCB0cmFuc2Zvcm09J3JvdGF0ZSgtOTApJyB4PSctMjUwJyB5PSc2NSc+PHRzcGFuPlJvb208L3RzcGFuPjwvdGV4dD48cmVjdCB4PSc3NScgeT0nNzUnIHdpZHRoPScxNScgaGVpZ2h0PSczNTAnLz48dGV4dCB4PScxMjUnIHk9JzEzMCcgdGV4dC1hbGlnbj0nbGVmdCcgdGV4dC1hbmNob3I9J3N0YXJ0Jz48dHNwYW4+QW48L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+VW5yZW1hcmthYmxlPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPkh1Z2U8L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+U291bGxlc3M8L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+V29vZGVuPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPlJvb20uPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPiYjMTYwOzwvdHNwYW4+PHRzcGFuIHg9JzEyNScgZHk9JzI1Jz5Cb3g8L3RzcGFuPgo8L3RleHQ+PC9nPjwvc3ZnPg=="};
                     const doc = await ready;
 
                     const lotImg = doc.getElementById("lot");
@@ -820,6 +835,18 @@
 
                     let provider = null;
                     let contract = null;
+
+                    const onMint = function(currentAddress, dest, tokenId) {
+                        if (currentAddress === dest) {
+                            Toastify({
+                                text: "room arrived",
+                                destination: `${openseaBase}${contractAddress}/${tokenId}`,
+                                newWindow: true
+                            }).showToast();
+                        }
+
+                        fetchForSale();
+                    };
 
                     const connectProvider = async function() {
                         const providerOptions = {
@@ -877,6 +904,21 @@
                         }
 
                         contract = roContract.connect(provider);
+
+                        const currentAddress = await provider.getAddress();
+                        const filter = contract.filters.Transfer("0x0000000000000000000000000000000000000000", null);
+                        contract.on(
+                            filter,
+                            (from, to, tokenId) => onMint(
+                                currentAddress,
+                                to,
+                                tokenId
+                            )
+                        );
+
+                        modalProvider.on("accountsChanged", reload);
+                        modalProvider.on("chainChanged", reload);
+                        modalProvider.on("disconnect", reload);
                     };
 
                     const onClickInner = async function onClick(evt) {
@@ -884,6 +926,10 @@
 
                         if (provider === null) {
                             await connectProvider();
+                        }
+
+                        if (provider === null) {
+                            return;
                         }
 
                         const tokenId = await contract.getForSale();
