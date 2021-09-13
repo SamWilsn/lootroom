@@ -40,12 +40,15 @@
             background-color: #1a1a1a;
             line-height: 1.3;
         }
-        a { text-decoration: none; }
+        a {
+            text-decoration: underline dotted;
+            color: #838383;
+        }
         a:hover {
             text-decoration: underline;
             text-decoration-thickness: 1px;
         }
-        nav > ul {
+        ul {
             padding: 15px 20px;
             font-size: 20px;
             max-width: 800px;
@@ -55,8 +58,14 @@
             list-style: none;
             justify-content: right;
         }
-        nav a {
-            color: #838383;
+        ul > li {
+            margin-right: 10px;
+        }
+        ul > li:last-child {
+            margin-right: 0;
+        }
+        nav a, header a {
+            text-decoration: none;
         }
         nav .title {
             margin-right: auto;
@@ -72,6 +81,12 @@
         header {
             max-width: 800px;
             margin: 0 auto;
+        }
+        dt {
+            font-size: 20px;
+        }
+        dd {
+            color: #8e8e8e;
         }
         header > p {
             text-align: center;
@@ -101,6 +116,11 @@
             text-align-last: center;
         }
 
+        .subtitle {
+            justify-content: center;
+            font-size: 22px;
+        }
+
         #lotDescription {
             text-transform: lowercase;
         }
@@ -118,6 +138,11 @@
             justify-content: space-around;
             align-items: center;
         }
+
+        section {
+            max-width: 800px;
+            margin: 0 auto;
+        }
         </style>
     </head>
     <body>
@@ -129,10 +154,24 @@
                 <li>
                     <a href="https://www.lootproject.com/">Loot</a>
                 </li>
+                <li>
+                    <a href="#faq">FAQ</a>
+                </li>
             </ul>
         </nav>
         <header>
             <h1>Loot Room</h1>
+            <ul class="subtitle">
+                <li>
+                    <a href="https://opensea.io/collection/loot-room">OpenSea</a>
+                </li>
+                <li>
+                    <a href="https://twitter.com/Loot_Room">Twitter</a>
+                </li>
+                <li>
+                    <a href="https://etherscan.io/address/0x2DC4b124727B58874538b713c2f30eAD6dC39d02#code">Contract</a>
+                </li>
+            </ul>
             <p>
                 Loot Rooms are randomized dungeon tiles generated and stored
                 on-chain.
@@ -157,6 +196,42 @@
             </div>
         </main>
         <hr>
+        <section>
+            <h2 id="faq">Frequently Asked Questions</h2>
+            <dl>
+                <dt>What is Loot Room?</dt>
+                <dd>
+                    <p>
+                    Loot Room is a collection of dungeon tiles, originally
+                    released by <a href="https://twitter.com/_SamWilsn_">Sam Wilson</a>.
+                    Now (and practically forever) anyone can mint a Loot Room, often for free. Each Loot Room is one of six kinds, is described by four randomly selected attributes like size and material, and can have up to four containers.
+                    </p>
+                    <p>
+                    Loot Room is an unaudited project, and like any dungeon, enter at
+                    your own risk.
+                    </p>
+                </dd>
+                <dt>How much does it cost to mint a Loot Room?</dt>
+                <dd>
+                    <p>
+                    Initially each Loot Room is offered for sale through a
+                    descending price auction (or <a href="https://en.wikipedia.org/wiki/Dutch_auction">Dutch auction</a>) over 6650 blocks, or about one day. After that, the room is free to mint for anyone, just pay for gas!
+                    </p>
+
+                    <p>
+                    The auction starts at four times the previous sale price or 1 Ether, whichever is greater.
+                    </p>
+                </dd>
+                <dt>Do Loot holders get anything special?</dt>
+                <dd>
+                    <p>
+                    Yes! Each Loot token entitles its holder to one free Loot
+                    Room. Just head over to <a id="etherscan">Etherscan</a> to
+                    claim.
+                    </p>
+                </dd>
+            </dl>
+        </section>
         <footer></footer>
 
         <script
@@ -187,19 +262,20 @@
                 const WalletConnectProvider = window.WalletConnectProvider.default;
 
                 // Build the contract.
-                // const network = "homestead";
-                // const contractAddress = "0x2DC4b124727B58874538b713c2f30eAD6dC39d02";
-                // const openseaBase = "https://opensea.io/assets/";
+                const network = "homestead";
+                const contractAddress = "0x2DC4b124727B58874538b713c2f30eAD6dC39d02";
+                const openseaBase = "https://opensea.io/assets/";
+                const etherscanBase = "https://etherscan.io/address/";
 
-                const network = "rinkeby";
-                const contractAddress = "0x730b781A2f763a576c914d49424875f6F7F8A331";
-                const openseaBase = "https://testnets.opensea.io/assets/";
+                // const network = "rinkeby";
+                // const contractAddress = "0x730b781A2f763a576c914d49424875f6F7F8A331";
+                // const openseaBase = "https://testnets.opensea.io/assets/";
+                // const etherscanBase = "https://rinkeby.etherscan.io/address/";
 
                 const infuraId = "7074adf98cbc4afaabda2e09151b8e4b";
                 const etherscanId = "HYND2S92S8FDTGJYQFNCAZBHKFI2R2TSVH";
                 const alchemyId = "lFUJaQ4O4OLdlIVy0MmVWRnjnRiQAVV_";
                 const pocketId = "61314d5ddf1ea70035db54d4";
-
 
                 const contractAbi = [
                     {
@@ -804,15 +880,12 @@
 
                 const fetchForSale = async function() {
                     const forSale = await roContract.getForSale();
-                    //const forSale = ethers.BigNumber.from("29182069936905408031677645221957553938637172442720556766568979949402042007552");
 
                     const price = await roContract.getPrice();
-                    //const price = ethers.BigNumber.from("0x01bc7daaaaaaaaaaaaa");
 
                     const tokenURI = await roContract.tokenURI(forSale);
                     const response = await fetch(tokenURI);
                     const metadata = await response.json();
-                    //const metadata = {"description":"An Unremarkable Room with a mostly Wooden construction. Compared to other rooms it is Huge, and feels Soulless. You find one container. To the North, there is a Refuge. To the East, there is a Room. To the South, there is a Room.","name":"Unremarkable Room #4829309","attributes":[{"trait_type":"Opinion","value":"Unremarkable"},{"trait_type":"Size","value":"Huge"},{"trait_type":"Description","value":"Soulless"},{"trait_type":"Material","value":"Wooden"},{"trait_type":"Biome","value":"Room"}],"image":"data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz48c3ZnIHZlcnNpb249JzEuMScgdmlld0JveD0nMCAwIDUwMCA1MDAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgc3R5bGU9J2JhY2tncm91bmQ6IzAwMCc+PGcgZmlsbD0nI2ZmZicgZm9udC1zaXplPScyMHB4JyBmb250LWZhbWlseT0nc2VyaWYnIHRleHQtYWxpZ249J2NlbnRlcicgdGV4dC1hbmNob3I9J21pZGRsZSc+PHRleHQgeD0nMjUwJyB5PSc2NScgZm9udC1zaXplPScyMHB4Jz48dHNwYW4+UmVmdWdlPC90c3Bhbj48L3RleHQ+PHBhdGggZD0nbTI1MCAxNSAxNSAyNmgtMzB6Jy8+PHRleHQgdHJhbnNmb3JtPSdyb3RhdGUoOTApJyB4PScyNTAnIHk9Jy00MzUnPjx0c3Bhbj5Sb29tPC90c3Bhbj48L3RleHQ+PHBhdGggZD0nbTQ4MyAyNDgtMjYgMTV2LTMweicvPjx0ZXh0IHRyYW5zZm9ybT0nc2NhbGUoLTEpJyB4PSctMjUwJyB5PSctNDM1Jz48dHNwYW4+Um9vbTwvdHNwYW4+PC90ZXh0PjxwYXRoIGQ9J20yNTAgNDgxIDE1LTI2aC0zMHonLz48dGV4dCB0cmFuc2Zvcm09J3JvdGF0ZSgtOTApJyB4PSctMjUwJyB5PSc2NSc+PHRzcGFuPlJvb208L3RzcGFuPjwvdGV4dD48cmVjdCB4PSc3NScgeT0nNzUnIHdpZHRoPScxNScgaGVpZ2h0PSczNTAnLz48dGV4dCB4PScxMjUnIHk9JzEzMCcgdGV4dC1hbGlnbj0nbGVmdCcgdGV4dC1hbmNob3I9J3N0YXJ0Jz48dHNwYW4+QW48L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+VW5yZW1hcmthYmxlPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPkh1Z2U8L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+U291bGxlc3M8L3RzcGFuPjx0c3BhbiB4PScxMjUnIGR5PScyNSc+V29vZGVuPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPlJvb20uPC90c3Bhbj48dHNwYW4geD0nMTI1JyBkeT0nMjUnPiYjMTYwOzwvdHNwYW4+PHRzcGFuIHg9JzEyNScgZHk9JzI1Jz5Cb3g8L3RzcGFuPgo8L3RleHQ+PC9nPjwvc3ZnPg=="};
                     const doc = await ready;
 
                     const lotImg = doc.getElementById("lot");
@@ -828,6 +901,12 @@
                     buy.textContent = `Mint for ${humanPrice}`;
                 };
 
+                const etherscanLink = async function() {
+                    const doc = await ready;
+                    const elem = doc.getElementById("etherscan");
+                    elem.href = `${etherscanBase}${contractAddress}#writeContract`;
+                };
+
                 const setup = async function() {
                     const doc = await ready;
 
@@ -840,6 +919,8 @@
                         if (currentAddress === dest) {
                             Toastify({
                                 text: "room arrived",
+                                close: true,
+                                duration: -1,
                                 destination: `${openseaBase}${contractAddress}/${tokenId}`,
                                 newWindow: true
                             }).showToast();
@@ -954,6 +1035,7 @@
                     btn.addEventListener("click", onClick);
                 };
 
+                etherscanLink();
                 fetchForSale();
                 setup();
             }());
